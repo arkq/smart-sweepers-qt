@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreferencesDialog</class>
+ <widget class="QDialog" name="PreferencesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>460</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Preferences</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="1,1">
+   <item row="0" column="0">
+    <widget class="QWidget" name="widget1" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout1">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="groupBox11">
+        <property name="title">
+         <string>Interface</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout11">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="framesPerSecondLabel">
+           <property name="text">
+            <string>Frames per Second:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="framesPerSecond"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Sweepers &amp;&amp; Mines</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout12">
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <item row="3" column="0">
+          <widget class="QLabel" name="maxTurnRateLabel">
+           <property name="text">
+            <string>Max Turn Rate:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="maxSpeedLabel">
+           <property name="text">
+            <string>Max Speed:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="sweeperScaleLabel">
+           <property name="text">
+            <string>Sweeper Scale:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="numSweepersLabel">
+           <property name="text">
+            <string>Sweepers:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="numMinesLabel">
+           <property name="text">
+            <string>Mines:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="mineScaleLabel">
+           <property name="text">
+            <string>Mine Scale:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="numTicksLabel">
+           <property name="text">
+            <string>Ticks:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="numSweepers"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="numMines"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="numTicks"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QDoubleSpinBox" name="maxTurnRate"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QDoubleSpinBox" name="maxSpeed"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="QDoubleSpinBox" name="sweeperScale"/>
+         </item>
+         <item row="6" column="1">
+          <widget class="QDoubleSpinBox" name="mineScale"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QWidget" name="widget2" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout2">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="groupBox21">
+        <property name="title">
+         <string>Neural Network</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout21">
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="numInputsLabel">
+           <property name="text">
+            <string>Inputs:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="numInputs"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="numHiddenLabel">
+           <property name="text">
+            <string>Hidden Layers:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="numHidden"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="neuronsPerHiddenLayerLabel">
+           <property name="text">
+            <string>Neuron per Hidden Layer:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="neuronsPerHiddenLayer"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="numOutputsLabel">
+           <property name="text">
+            <string>Outputs:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="numOutputs"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="activationResponseLabel">
+           <property name="text">
+            <string>Activation Response:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QDoubleSpinBox" name="activationResponse"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="biasLabel">
+           <property name="text">
+            <string>Bias:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QDoubleSpinBox" name="bias"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox22">
+        <property name="title">
+         <string>Genetic Algorithm</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout22">
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="crossoverRateLabel">
+           <property name="text">
+            <string>Crossover Rate:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="mutationRateLabel">
+           <property name="text">
+            <string>Mutation Rate:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="maxPerturbationLabel">
+           <property name="text">
+            <string>Max Perturbation:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="numEliteLabel">
+           <property name="text">
+            <string>Num Elite:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="numCopiesEliteLabel">
+           <property name="text">
+            <string>Num Copies Elite:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="crossoverRate"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="mutationRate"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="maxPerturbation"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="numElite"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="numCopiesElite"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>framesPerSecond</tabstop>
+  <tabstop>numSweepers</tabstop>
+  <tabstop>numMines</tabstop>
+  <tabstop>numTicks</tabstop>
+  <tabstop>maxTurnRate</tabstop>
+  <tabstop>maxSpeed</tabstop>
+  <tabstop>sweeperScale</tabstop>
+  <tabstop>mineScale</tabstop>
+  <tabstop>numInputs</tabstop>
+  <tabstop>numHidden</tabstop>
+  <tabstop>neuronsPerHiddenLayer</tabstop>
+  <tabstop>numOutputs</tabstop>
+  <tabstop>activationResponse</tabstop>
+  <tabstop>bias</tabstop>
+  <tabstop>crossoverRate</tabstop>
+  <tabstop>mutationRate</tabstop>
+  <tabstop>maxPerturbation</tabstop>
+  <tabstop>numElite</tabstop>
+  <tabstop>numCopiesElite</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>PreferencesDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>257</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>PreferencesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>325</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
