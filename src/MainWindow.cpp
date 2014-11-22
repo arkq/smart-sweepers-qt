@@ -11,18 +11,28 @@
 
 #include <QSettings>
 
+#include "SceneController.h"
+
+
+// initialize static settings storage
+MainWindow::SmartSweepersSettings MainWindow::s;
 
 MainWindow::MainWindow(QApplication &app, QWidget *parent) :
 		QMainWindow(parent),
 		ui(new Ui::MainWindow),
-		app(&app) {
+		app(&app),
+		started(false),
+		paused(false),
+		simulation_timerid(0),
+		render_timerid(0),
+		controller(nullptr) {
 
 	ui->setupUi(this);
 
 	connect(ui->actionStart, SIGNAL(triggered()), this, SLOT(startSimulation()));
 	connect(ui->actionStop, SIGNAL(triggered()), this, SLOT(stopSimulation()));
+	connect(ui->actionPause, SIGNAL(triggered()), this, SLOT(pauseSimulation()));
 	connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(showPreferences()));
-	connect(ui->actionQuit, SIGNAL(triggered()), &app, SLOT(quit()));
 	connect(ui->actionAboutQt, SIGNAL(triggered()), &app, SLOT(aboutQt()));
 
 	stopSimulation();
@@ -33,17 +43,65 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
 
 MainWindow::~MainWindow() {
 	saveSettings();
+	delete controller;
 	delete ui;
 }
 
 void MainWindow::startSimulation() {
 	ui->actionStart->setVisible(false);
 	ui->actionStop->setVisible(true);
+	ui->actionPause->setEnabled(true);
+	started = true;
+	paused = false;
+
+	// reinitialize controller (allows NN reconfiguration)
+	delete controller;
+	QSize size = ui->graphicsView->size();
+	controller = new SceneController(size.width(), size.height());
+	ui->graphicsView->setScene(controller->scene());
+
+	startSimulationTimer();
+	startRenderTimer();
+
 }
 
 void MainWindow::stopSimulation() {
 	ui->actionStart->setVisible(true);
 	ui->actionStop->setVisible(false);
+	ui->actionPause->setEnabled(false);
+	started = paused = false;
+	stopSimulationTimer();
+	stopRenderTimer();
+}
+
+void MainWindow::pauseSimulation() {
+	if (started) {
+		paused ^= true;
+		if (paused) {
+			stopSimulationTimer();
+			stopRenderTimer();
+		}
+		else {
+			startSimulationTimer();
+			startRenderTimer();
+		}
+	}
+}
+
+void MainWindow::updateTimers() {
+	if (simulation_timerid) {
+		stopSimulationTimer();
+		startSimulationTimer();
+	}
+	if (render_timerid) {
+		stopRenderTimer();
+		startRenderTimer();
+	}
+}
+
+void MainWindow::updateMines() {
+	if (controller)
+		controller->updateMineObjects(s.iNumMines);
 }
 
 void MainWindow::showPreferences() {
@@ -51,35 +109,75 @@ void MainWindow::showPreferences() {
 	dialog.exec();
 }
 
+void MainWindow::startSimulationTimer() {
+	if (!simulation_timerid)
+		simulation_timerid = startTimer(1000 / s.iCyclesPerSecond);
+}
+
+void MainWindow::stopSimulationTimer() {
+	if (simulation_timerid) {
+		killTimer(simulation_timerid);
+		simulation_timerid = 0;
+	}
+}
+
+void MainWindow::startRenderTimer() {
+	if (!render_timerid)
+		render_timerid = startTimer(1000 / s.iFramesPerSecond);
+}
+
+void MainWindow::stopRenderTimer() {
+	if (render_timerid) {
+		killTimer(render_timerid);
+		render_timerid = 0;
+	}
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event) {
+	Q_UNUSED(event);
+	if (controller) {
+		QSize size = ui->graphicsView->size();
+		controller->setViewport(size.width(), size.height());
+	}
+}
+
+void MainWindow::timerEvent(QTimerEvent *event) {
+	if (event->timerId() == simulation_timerid)
+		controller->updateSimulation();
+	if (event->timerId() == render_timerid)
+		controller->updateScene();
+}
+
 void MainWindow::loadSettings() {
 
 	QSettings settings;
 
-	iFramesPerSecond = settings.value("iFramesPerSecond", iFramesPerSecond).toInt();
+	s.iCyclesPerSecond = settings.value("iCyclesPerSecond", s.iCyclesPerSecond).toInt();
+	s.iFramesPerSecond = settings.value("iFramesPerSecond", s.iFramesPerSecond).toInt();
 
-	iNumSweepers = settings.value("iNumSweepers", iNumSweepers).toInt();
-	iNumMines = settings.value("iNumMines", iNumMines).toInt();
-	iNumTicks = settings.value("iNumTicks", iNumTicks).toInt();
-	dMaxTurnRate = settings.value("dMaxTurnRate", dMaxTurnRate).toDouble();
-	dMaxSpeed = settings.value("dMaxSpeed", dMaxSpeed).toDouble();
-	dSweeperScale = settings.value("dSweeperScale", dSweeperScale).toDouble();
-	dMineScale = settings.value("dMineScale", dMineScale).toDouble();
+	s.iNumSweepers = settings.value("iNumSweepers", s.iNumSweepers).toInt();
+	s.iNumMines = settings.value("iNumMines", s.iNumMines).toInt();
+	s.iNumTicks = settings.value("iNumTicks", s.iNumTicks).toInt();
+	s.dMaxTurnRate = settings.value("dMaxTurnRate", s.dMaxTurnRate).toDouble();
+	s.dMaxSpeed = settings.value("dMaxSpeed", s.dMaxSpeed).toDouble();
+	s.dSweeperScale = settings.value("dSweeperScale", s.dSweeperScale).toDouble();
+	s.dMineScale = settings.value("dMineScale", s.dMineScale).toDouble();
 
 	settings.beginGroup("NeuralNetwork");
-	iNumInputs = settings.value("iNumInputs", iNumInputs).toInt();
-	iNumHidden = settings.value("iNumHidden", iNumHidden).toInt();
-	iNeuronsPerHiddenLayer = settings.value("iNeuronsPerHiddenLayer", iNeuronsPerHiddenLayer).toInt();
-	iNumOutputs = settings.value("iNumOutputs", iNumOutputs).toInt();
-	dActivationResponse = settings.value("dActivationResponse", dActivationResponse).toDouble();
-	dBias = settings.value("dBias", dBias).toDouble();
+	s.iNumInputs = settings.value("iNumInputs", s.iNumInputs).toInt();
+	s.iNumHiddenLayers = settings.value("iNumHiddenLayers", s.iNumHiddenLayers).toInt();
+	s.iNeuronsPerHiddenLayer = settings.value("iNeuronsPerHiddenLayer", s.iNeuronsPerHiddenLayer).toInt();
+	s.iNumOutputs = settings.value("iNumOutputs", s.iNumOutputs).toInt();
+	s.dActivationResponse = settings.value("dActivationResponse", s.dActivationResponse).toDouble();
+	s.dBias = settings.value("dBias", s.dBias).toDouble();
 	settings.endGroup();
 
 	settings.beginGroup("GeneticAlgorithm");
-	dCrossoverRate = settings.value("dCrossoverRate", dCrossoverRate).toDouble();
-	dMutationRate = settings.value("dMutationRate", dMutationRate).toDouble();
-	dMaxPerturbation = settings.value("dMaxPerturbation", dMaxPerturbation).toDouble();
-	iNumElite = settings.value("iNumElite", iNumElite).toInt();
-	iNumCopiesElite = settings.value("iNumCopiesElite", iNumCopiesElite).toInt();
+	s.dCrossoverRate = settings.value("dCrossoverRate", s.dCrossoverRate).toDouble();
+	s.dMutationRate = settings.value("dMutationRate", s.dMutationRate).toDouble();
+	s.dMaxPerturbation = settings.value("dMaxPerturbation", s.dMaxPerturbation).toDouble();
+	s.iNumElite = settings.value("iNumElite", s.iNumElite).toInt();
+	s.iNumCopiesElite = settings.value("iNumCopiesElite", s.iNumCopiesElite).toInt();
 	settings.endGroup();
 
 }
@@ -88,59 +186,61 @@ void MainWindow::saveSettings() {
 
 	QSettings settings;
 
-	settings.setValue("iFramesPerSecond", iFramesPerSecond);
+	settings.setValue("iCyclesPerSecond", s.iCyclesPerSecond);
+	settings.setValue("iFramesPerSecond", s.iFramesPerSecond);
 
-	settings.setValue("iNumSweepers", iNumSweepers);
-	settings.setValue("iNumMines", iNumMines);
-	settings.setValue("iNumTicks", iNumTicks);
-	settings.setValue("dMaxTurnRate", dMaxTurnRate);
-	settings.setValue("dMaxSpeed", dMaxSpeed);
-	settings.setValue("dSweeperScale", dSweeperScale);
-	settings.setValue("dMineScale", dMineScale);
+	settings.setValue("iNumSweepers", s.iNumSweepers);
+	settings.setValue("iNumMines", s.iNumMines);
+	settings.setValue("iNumTicks", s.iNumTicks);
+	settings.setValue("dMaxTurnRate", s.dMaxTurnRate);
+	settings.setValue("dMaxSpeed", s.dMaxSpeed);
+	settings.setValue("dSweeperScale", s.dSweeperScale);
+	settings.setValue("dMineScale", s.dMineScale);
 
 	settings.beginGroup("NeuralNetwork");
-	settings.setValue("iNumInputs", iNumInputs);
-	settings.setValue("iNumHidden", iNumHidden);
-	settings.setValue("iNeuronsPerHiddenLayer", iNeuronsPerHiddenLayer);
-	settings.setValue("iNumOutputs", iNumOutputs);
-	settings.setValue("dActivationResponse", dActivationResponse);
-	settings.setValue("dBias", dBias);
+	settings.setValue("iNumInputs", s.iNumInputs);
+	settings.setValue("iNumHiddenLayers", s.iNumHiddenLayers);
+	settings.setValue("iNeuronsPerHiddenLayer", s.iNeuronsPerHiddenLayer);
+	settings.setValue("iNumOutputs", s.iNumOutputs);
+	settings.setValue("dActivationResponse", s.dActivationResponse);
+	settings.setValue("dBias", s.dBias);
 	settings.endGroup();
 
 	settings.beginGroup("GeneticAlgorithm");
-	settings.setValue("dCrossoverRate", dCrossoverRate);
-	settings.setValue("dMutationRate", dMutationRate);
-	settings.setValue("dMaxPerturbation", dMaxPerturbation);
-	settings.setValue("iNumElite", iNumElite);
-	settings.setValue("iNumCopiesElite", iNumCopiesElite);
+	settings.setValue("dCrossoverRate", s.dCrossoverRate);
+	settings.setValue("dMutationRate", s.dMutationRate);
+	settings.setValue("dMaxPerturbation", s.dMaxPerturbation);
+	settings.setValue("iNumElite", s.iNumElite);
+	settings.setValue("iNumCopiesElite", s.iNumCopiesElite);
 	settings.endGroup();
 
 }
 
 void MainWindow::resetSettings() {
 
-	iFramesPerSecond = 60;
+	s.iCyclesPerSecond = 60;
+	s.iFramesPerSecond = 10;
 
-	iNumSweepers = 30;
-	iNumMines = 40;
-	iNumTicks = 2000;
-	dMaxTurnRate = 0.3;
-	dMaxSpeed = 2;
-	dSweeperScale = 5;
-	dMineScale = 2;
+	s.iNumSweepers = 30;
+	s.iNumMines = 40;
+	s.iNumTicks = 2000;
+	s.dMaxTurnRate = 0.3;
+	s.dMaxSpeed = 2;
+	s.dSweeperScale = 5;
+	s.dMineScale = 2;
 
-	iNumInputs = 4;
-	iNumHidden = 1;
-	iNeuronsPerHiddenLayer = 6;
-	iNumOutputs = 2;
-	dActivationResponse = 1;
-	dBias = -1;
+	s.iNumInputs = 4;
+	s.iNumHiddenLayers = 1;
+	s.iNeuronsPerHiddenLayer = 6;
+	s.iNumOutputs = 2;
+	s.dActivationResponse = 1;
+	s.dBias = -1;
 
-	dCrossoverRate = 0.7;
-	dMutationRate = 0.1;
-	dMaxPerturbation = 0.3;
-	iNumElite = 4;
-	iNumCopiesElite = 1;
+	s.dCrossoverRate = 0.7;
+	s.dMutationRate = 0.1;
+	s.dMaxPerturbation = 0.3;
+	s.iNumElite = 4;
+	s.iNumCopiesElite = 1;
 
 }
 
@@ -165,13 +265,11 @@ PreferencesDialog::~PreferencesDialog() {
 
 void PreferencesDialog::buttonAction(QAbstractButton *button) {
 	switch (ui->buttonBox->standardButton(button)) {
+	case ui->buttonBox->RestoreDefaults:
+		resetSettings();
 	case ui->buttonBox->Ok:
 	case ui->buttonBox->Apply:
 		applySettings();
-		break;
-	case ui->buttonBox->RestoreDefaults:
-		resetSettings();
-		break;
 	default:
 		break;
 	}
@@ -179,28 +277,32 @@ void PreferencesDialog::buttonAction(QAbstractButton *button) {
 
 void PreferencesDialog::applySettings() {
 
-	mainwindow->iFramesPerSecond = ui->framesPerSecond->value();
+	mainwindow->s.iCyclesPerSecond = ui->cyclesPerSecond->value();
+	mainwindow->s.iFramesPerSecond = ui->framesPerSecond->value();
 
-	mainwindow->iNumSweepers = ui->numSweepers->value();
-	mainwindow->iNumMines = ui->numMines->value();
-	mainwindow->iNumTicks = ui->numTicks->value();
-	mainwindow->dMaxTurnRate = ui->maxTurnRate->value();
-	mainwindow->dMaxSpeed = ui->maxSpeed->value();
-	mainwindow->dSweeperScale = ui->sweeperScale->value();
-	mainwindow->dMineScale = ui->mineScale->value();
+	mainwindow->s.iNumSweepers = ui->numSweepers->value();
+	mainwindow->s.iNumMines = ui->numMines->value();
+	mainwindow->s.iNumTicks = ui->numTicks->value();
+	mainwindow->s.dMaxTurnRate = ui->maxTurnRate->value();
+	mainwindow->s.dMaxSpeed = ui->maxSpeed->value();
+	mainwindow->s.dSweeperScale = ui->sweeperScale->value();
+	mainwindow->s.dMineScale = ui->mineScale->value();
 
-	mainwindow->iNumInputs = ui->numInputs->value();
-	mainwindow->iNumHidden = ui->numHidden->value();
-	mainwindow->iNeuronsPerHiddenLayer = ui->neuronsPerHiddenLayer->value();
-	mainwindow->iNumOutputs = ui->numOutputs->value();
-	mainwindow->dActivationResponse = ui->activationResponse->value();
-	mainwindow->dBias = ui->bias->value();
+	mainwindow->s.iNumInputs = ui->numInputs->value();
+	mainwindow->s.iNumHiddenLayers = ui->numHiddenLayers->value();
+	mainwindow->s.iNeuronsPerHiddenLayer = ui->neuronsPerHiddenLayer->value();
+	mainwindow->s.iNumOutputs = ui->numOutputs->value();
+	mainwindow->s.dActivationResponse = ui->activationResponse->value();
+	mainwindow->s.dBias = ui->bias->value();
 
-	mainwindow->dCrossoverRate = ui->crossoverRate->value();
-	mainwindow->dMutationRate = ui->mutationRate->value();
-	mainwindow->dMaxPerturbation = ui->maxPerturbation->value();
-	mainwindow->iNumElite = ui->numElite->value();
-	mainwindow->iNumCopiesElite = ui->numCopiesElite->value();
+	mainwindow->s.dCrossoverRate = ui->crossoverRate->value();
+	mainwindow->s.dMutationRate = ui->mutationRate->value();
+	mainwindow->s.dMaxPerturbation = ui->maxPerturbation->value();
+	mainwindow->s.iNumElite = ui->numElite->value();
+	mainwindow->s.iNumCopiesElite = ui->numCopiesElite->value();
+
+	mainwindow->updateTimers();
+	mainwindow->updateMines();
 
 }
 
@@ -211,27 +313,28 @@ void PreferencesDialog::resetSettings() {
 
 void PreferencesDialog::loadSettings() {
 
-	ui->framesPerSecond->setValue(mainwindow->iFramesPerSecond);
+	ui->cyclesPerSecond->setValue(mainwindow->s.iCyclesPerSecond);
+	ui->framesPerSecond->setValue(mainwindow->s.iFramesPerSecond);
 
-	ui->numSweepers->setValue(mainwindow->iNumSweepers);
-	ui->numMines->setValue(mainwindow->iNumMines);
-	ui->numTicks->setValue(mainwindow->iNumTicks);
-	ui->maxTurnRate->setValue(mainwindow->dMaxTurnRate);
-	ui->maxSpeed->setValue(mainwindow->dMaxSpeed);
-	ui->sweeperScale->setValue(mainwindow->dSweeperScale);
-	ui->mineScale->setValue(mainwindow->dMineScale);
+	ui->numSweepers->setValue(mainwindow->s.iNumSweepers);
+	ui->numMines->setValue(mainwindow->s.iNumMines);
+	ui->numTicks->setValue(mainwindow->s.iNumTicks);
+	ui->maxTurnRate->setValue(mainwindow->s.dMaxTurnRate);
+	ui->maxSpeed->setValue(mainwindow->s.dMaxSpeed);
+	ui->sweeperScale->setValue(mainwindow->s.dSweeperScale);
+	ui->mineScale->setValue(mainwindow->s.dMineScale);
 
-	ui->numInputs->setValue(mainwindow->iNumInputs);
-	ui->numHidden->setValue(mainwindow->iNumHidden);
-	ui->neuronsPerHiddenLayer->setValue(mainwindow->iNeuronsPerHiddenLayer);
-	ui->numOutputs->setValue(mainwindow->iNumOutputs);
-	ui->activationResponse->setValue(mainwindow->dActivationResponse);
-	ui->bias->setValue(mainwindow->dBias);
+	ui->numInputs->setValue(mainwindow->s.iNumInputs);
+	ui->numHiddenLayers->setValue(mainwindow->s.iNumHiddenLayers);
+	ui->neuronsPerHiddenLayer->setValue(mainwindow->s.iNeuronsPerHiddenLayer);
+	ui->numOutputs->setValue(mainwindow->s.iNumOutputs);
+	ui->activationResponse->setValue(mainwindow->s.dActivationResponse);
+	ui->bias->setValue(mainwindow->s.dBias);
 
-	ui->crossoverRate->setValue(mainwindow->dCrossoverRate);
-	ui->mutationRate->setValue(mainwindow->dMutationRate);
-	ui->maxPerturbation->setValue(mainwindow->dMaxPerturbation);
-	ui->numElite->setValue(mainwindow->iNumElite);
-	ui->numCopiesElite->setValue(mainwindow->iNumCopiesElite);
+	ui->crossoverRate->setValue(mainwindow->s.dCrossoverRate);
+	ui->mutationRate->setValue(mainwindow->s.dMutationRate);
+	ui->maxPerturbation->setValue(mainwindow->s.dMaxPerturbation);
+	ui->numElite->setValue(mainwindow->s.iNumElite);
+	ui->numCopiesElite->setValue(mainwindow->s.iNumCopiesElite);
 
 }

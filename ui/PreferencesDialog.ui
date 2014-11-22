@@ -32,15 +32,39 @@
          <property name="labelAlignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="framesPerSecondLabel">
            <property name="text">
             <string>Frames per Second:</string>
            </property>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="framesPerSecond">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="cyclesPerSecondLabel">
+           <property name="text">
+            <string>Cycles per Second:</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="framesPerSecond"/>
+          <widget class="QSpinBox" name="cyclesPerSecond">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -104,13 +128,34 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="numSweepers"/>
+          <widget class="QSpinBox" name="numSweepers">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>200</number>
+           </property>
+          </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QSpinBox" name="numMines"/>
+          <widget class="QSpinBox" name="numMines">
+           <property name="maximum">
+            <number>200</number>
+           </property>
+          </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QSpinBox" name="numTicks"/>
+          <widget class="QSpinBox" name="numTicks">
+           <property name="minimum">
+            <number>10</number>
+           </property>
+           <property name="maximum">
+            <number>100000</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+          </widget>
          </item>
          <item row="3" column="1">
           <widget class="QDoubleSpinBox" name="maxTurnRate"/>
@@ -156,14 +201,14 @@
           <widget class="QSpinBox" name="numInputs"/>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="numHiddenLabel">
+          <widget class="QLabel" name="numHiddenLayersLabel">
            <property name="text">
             <string>Hidden Layers:</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QSpinBox" name="numHidden"/>
+          <widget class="QSpinBox" name="numHiddenLayers"/>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="neuronsPerHiddenLayerLabel">
@@ -203,7 +248,14 @@
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QDoubleSpinBox" name="bias"/>
+          <widget class="QDoubleSpinBox" name="bias">
+           <property name="minimum">
+            <double>-100.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>100.000000000000000</double>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -287,6 +339,7 @@
  </widget>
  <tabstops>
   <tabstop>buttonBox</tabstop>
+  <tabstop>cyclesPerSecond</tabstop>
   <tabstop>framesPerSecond</tabstop>
   <tabstop>numSweepers</tabstop>
   <tabstop>numMines</tabstop>
@@ -296,7 +349,7 @@
   <tabstop>sweeperScale</tabstop>
   <tabstop>mineScale</tabstop>
   <tabstop>numInputs</tabstop>
-  <tabstop>numHidden</tabstop>
+  <tabstop>numHiddenLayers</tabstop>
   <tabstop>neuronsPerHiddenLayer</tabstop>
   <tabstop>numOutputs</tabstop>
   <tabstop>activationResponse</tabstop>

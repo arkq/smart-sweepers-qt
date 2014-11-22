@@ -17,33 +17,21 @@ unix {
 }
 
 HEADERS += \
-	src/MainWindow.h
-
-#	src/C2DMatrix.h \
-#	src/CController.h \
-#	src/CGenAlg.h \
-#	src/CMineSweeper.h \
-#	src/CNeuralNet.h \
-#	src/CParams.h \
-#	src/CTimer.h \
-#	src/SVector2D.h \
-#	src/MainWindow.h \
-#	src/utils.h
+	src/CGenAlg.h \
+	src/CMinesweeper.h \
+	src/CNeuralNet.h \
+	src/MainWindow.h \
+	src/SceneController.h \
+	src/SVector2D.h \
+	src/utils.h
 
 SOURCES += \
+	src/CGenAlg.cpp \
+	src/CMinesweeper.cpp \
+	src/CNeuralNet.cpp \
 	src/MainWindow.cpp \
+	src/SceneController.cpp \
 	src/main.cpp
-
-#	src/C2DMatrix.cpp \
-#	src/CController.cpp \
-#	src/CGenAlg.cpp \
-#	src/CMinesweeper.cpp \
-#	src/CNeuralNet.cpp \
-#	src/CParams.cpp \
-#	src/CTimer.cpp \
-#	src/MainWindow.cpp \
-#	src/main.cpp \
-#	src/utils.cpp
 
 FORMS += \
 	ui/MainWindow.ui \
