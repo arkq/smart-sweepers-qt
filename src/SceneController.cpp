@@ -5,26 +5,25 @@
 //
 // This projected is licensed under the terms of the MIT license.
 
+#define _USE_MATH_DEFINES
 #include "SceneController.h"
-
-#include <QPolygonF>
 
 #include "MainWindow.h"
 #include "utils.h"
 
 
 // graphic object templates centered at (0, 0)
-const QPolygonF objectMine(QVector<QPointF>({
-		QPointF(-1, -1), QPointF(1, -1), QPointF(1, 1), QPointF(-1, 1),
-}));
-const QPolygonF objectSweeper(QVector<QPointF>({
-		QPointF(0.4, -0.5), QPointF(0.4, -1), QPointF(1, -1),
-		QPointF(1, 1), QPointF(0.4, 1), QPointF(0.4, -0.1),
-		QPointF(0.2, -0.1), QPointF(0.2, 0.8), QPointF(0.1, 0.8), QPointF(0.1, 1.7),
-		QPointF(-0.1, 1.7), QPointF(-0.1, 0.8), QPointF(-0.2, 0.8), QPointF(-0.2, -0.1),
-		QPointF(-0.4, -0.1), QPointF(-0.4, 1), QPointF(-1, 1),
-		QPointF(-1, -1), QPointF(-0.4, -1), QPointF(-0.4, -0.5),
-}));
+const QPointF objectMinePoints[] = {
+	QPointF(-1, -1), QPointF(1, -1), QPointF(1, 1), QPointF(-1, 1),
+};
+const QPointF objectSweeperPoints[] = {
+	QPointF(0.4, -0.5), QPointF(0.4, -1), QPointF(1, -1),
+	QPointF(1, 1), QPointF(0.4, 1), QPointF(0.4, -0.1),
+	QPointF(0.2, -0.1), QPointF(0.2, 0.8), QPointF(0.1, 0.8), QPointF(0.1, 1.7),
+	QPointF(-0.1, 1.7), QPointF(-0.1, 0.8), QPointF(-0.2, 0.8), QPointF(-0.2, -0.1),
+	QPointF(-0.4, -0.1), QPointF(-0.4, 1), QPointF(-1, 1),
+	QPointF(-1, -1), QPointF(-0.4, -1), QPointF(-0.4, -0.5),
+};
 
 
 // Initialize the sweepers, their brains and the GA factory.
@@ -41,6 +40,18 @@ SceneController::SceneController(int width, int height, QObject *parent) :
 		m_bInternalError(false),
 		m_iTicks(0),
 		m_iGenerations(0) {
+
+	// MSVC does not support the std::initializer_list, so this is the only way
+	// to create our object templates and be platform independent...
+	for (unsigned int i = 0; i < sizeof(objectMinePoints) / sizeof(*objectMinePoints); ++i)
+		objectMine.append(objectMinePoints[i]);
+	for (unsigned int i = 0; i < sizeof(objectSweeperPoints) / sizeof(*objectSweeperPoints); ++i)
+		objectSweeper.append(objectSweeperPoints[i]);
+
+	// compatibility mode with Qt5
+	gsDefaultPen.setCosmetic(true);
+	gsElitePen.setCosmetic(true);
+	gsMinePen.setCosmetic(true);
 
 	gs->addItem(gsInfo);
 

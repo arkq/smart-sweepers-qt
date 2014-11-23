@@ -110,8 +110,12 @@ void MainWindow::showPreferences() {
 }
 
 void MainWindow::startSimulationTimer() {
-	if (!simulation_timerid)
-		simulation_timerid = startTimer(1000 / s.iCyclesPerSecond);
+	if (!simulation_timerid) {
+		if (s.iCyclesPerSecond)
+			simulation_timerid = startTimer(1000 / s.iCyclesPerSecond);
+		else
+			simulation_timerid = startTimer(0);
+	}
 }
 
 void MainWindow::stopSimulationTimer() {

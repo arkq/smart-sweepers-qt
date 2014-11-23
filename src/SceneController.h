@@ -14,6 +14,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsPolygonItem>
 #include <QObject>
+#include <QPolygonF>
 #include <QVector>
 
 #include "CGenAlg.h"
@@ -50,6 +51,10 @@ private:
 	QPen gsDefaultPen;
 	QPen gsElitePen;
 	QPen gsMinePen;
+
+	// graphic object templates
+	QPolygonF objectMine;
+	QPolygonF objectSweeper;
 
 	// storage for the population of genomes, minesweepers and mines
 	QVector<SGenome> vecThePopulation;
