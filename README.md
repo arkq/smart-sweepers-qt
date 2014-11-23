@@ -17,6 +17,8 @@ minesweeper current direction vector. Genetic Algorithm is used to maximize
 the fitness factor, which in our example is the best approximation of a linear
 motion toward the closest mine.
 
+![Screenshot](/../screenshots/screenshots/smart-sweepers-qt-win8.png?raw=true)
+
 
 Compilation
 -----------
