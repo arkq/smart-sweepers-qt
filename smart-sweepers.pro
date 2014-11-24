@@ -35,4 +35,5 @@ SOURCES += \
 
 FORMS += \
 	ui/MainWindow.ui \
-	ui/PreferencesDialog.ui
+	ui/PreferencesDialog.ui \
+	ui/StatisticsDialog.ui

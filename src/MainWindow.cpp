@@ -8,7 +8,9 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "ui_PreferencesDialog.h"
+#include "ui_StatisticsDialog.h"
 
+#include <QClipboard>
 #include <QSettings>
 
 #include "SceneController.h"
@@ -29,9 +31,13 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
 
 	ui->setupUi(this);
 
+	dlgstats = new StatisticsDialog(this);
+	connect(this, SIGNAL(statisticsUpdated()), dlgstats, SLOT(appendNewData()));
+
 	connect(ui->actionStart, SIGNAL(triggered()), this, SLOT(startSimulation()));
 	connect(ui->actionStop, SIGNAL(triggered()), this, SLOT(stopSimulation()));
 	connect(ui->actionPause, SIGNAL(triggered()), this, SLOT(pauseSimulation()));
+	connect(ui->actionStatistics, SIGNAL(triggered()), this, SLOT(showStatistics()));
 	connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(showPreferences()));
 	connect(ui->actionAboutQt, SIGNAL(triggered()), &app, SLOT(aboutQt()));
 
@@ -44,6 +50,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
 MainWindow::~MainWindow() {
 	saveSettings();
 	delete controller;
+	delete dlgstats;
 	delete ui;
 }
 
@@ -54,11 +61,18 @@ void MainWindow::startSimulation() {
 	started = true;
 	paused = false;
 
-	// reinitialize controller (allows NN reconfiguration)
+	// reinitialize controller (allow NN reconfiguration)
+
 	delete controller;
+	statistics.clear();
+	dlgstats->clearData();
+
 	QSize size = ui->graphicsView->size();
 	controller = new SceneController(size.width(), size.height());
 	ui->graphicsView->setScene(controller->scene());
+
+	connect(controller, SIGNAL(generationStats(int, double, double)),
+			this, SLOT(updateStats(int, double, double)));
 
 	startSimulationTimer();
 	startRenderTimer();
@@ -69,6 +83,7 @@ void MainWindow::stopSimulation() {
 	ui->actionStart->setVisible(true);
 	ui->actionStop->setVisible(false);
 	ui->actionPause->setEnabled(false);
+	ui->actionPause->setChecked(false);
 	started = paused = false;
 	stopSimulationTimer();
 	stopRenderTimer();
@@ -104,6 +119,17 @@ void MainWindow::updateMines() {
 		controller->updateMineObjects(s.iNumMines);
 }
 
+void MainWindow::updateStats(int generation, double bestFitness, double avgeFitness) {
+	statistics.push_back(StatisticData(generation, bestFitness, avgeFitness));
+	emit statisticsUpdated();
+}
+
+void MainWindow::showStatistics() {
+	dlgstats->show();
+	dlgstats->raise();
+	dlgstats->activateWindow();
+}
+
 void MainWindow::showPreferences() {
 	PreferencesDialog dialog(this);
 	dialog.exec();
@@ -135,6 +161,11 @@ void MainWindow::stopRenderTimer() {
 		killTimer(render_timerid);
 		render_timerid = 0;
 	}
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+	Q_UNUSED(event);
+	app->quit();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
@@ -341,4 +372,59 @@ void PreferencesDialog::loadSettings() {
 	ui->numElite->setValue(mainwindow->s.iNumElite);
 	ui->numCopiesElite->setValue(mainwindow->s.iNumCopiesElite);
 
+}
+
+
+StatisticsDialog::StatisticsDialog(MainWindow *mainwindow) :
+		ui(new Ui::StatisticsDialog),
+		mainwindow(mainwindow) {
+
+	ui->setupUi(this);
+
+}
+
+StatisticsDialog::~StatisticsDialog() {
+	delete ui;
+}
+
+void StatisticsDialog::appendNewData() {
+	appendData(mainwindow->getStatistics().back());
+}
+
+void StatisticsDialog::clearData() {
+	ui->tableWidget->setRowCount(0);
+}
+
+void StatisticsDialog::appendData(const StatisticData &data) {
+
+	int row = ui->tableWidget->rowCount();
+	ui->tableWidget->setRowCount(row + 1);
+
+	ui->tableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(data.generation)));
+	ui->tableWidget->setItem(row, 1, new QTableWidgetItem(QString::number(data.bestFitness)));
+	ui->tableWidget->setItem(row, 2, new QTableWidgetItem(QString::number(data.avgeFitness)));
+
+}
+
+void StatisticsDialog::keyPressEvent(QKeyEvent *event) {
+	if (event->matches(QKeySequence::Copy)) {
+
+		QModelIndexList cells = ui->tableWidget->selectionModel()->selectedIndexes();
+		qSort(cells); // sort cells by (row, column)
+
+		QString text;
+		int currentRow = 0;
+		for (auto i = cells.begin(); i < cells.end(); ++i) {
+			if (!text.isEmpty()) {
+				if (currentRow == (*i).row())
+					text += '\t';
+				else
+					text += '\n';
+			}
+			currentRow = (*i).row();
+			text += (*i).data().toString();
+		}
+
+		mainwindow->getApplication()->clipboard()->setText(text);
+	}
 }

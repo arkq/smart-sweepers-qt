@@ -50,6 +50,7 @@
     <addaction name="actionStop"/>
     <addaction name="actionPause"/>
     <addaction name="separator"/>
+    <addaction name="actionStatistics"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -129,6 +130,14 @@
    </property>
    <property name="shortcut">
     <string>Space</string>
+   </property>
+  </action>
+  <action name="actionStatistics">
+   <property name="text">
+    <string>S&amp;tatistics...</string>
+   </property>
+   <property name="shortcut">
+    <string>F12</string>
    </property>
   </action>
  </widget>

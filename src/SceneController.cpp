@@ -11,6 +11,11 @@
 #include "MainWindow.h"
 #include "utils.h"
 
+#ifndef M_PI
+// if you want something done, do it yourself...
+#define M_PI (4 * atan(1))
+#endif
+
 
 // graphic object templates centered at (0, 0)
 const QPointF objectMinePoints[] = {
@@ -229,9 +234,20 @@ void SceneController::updateSimulation() {
 	// Time to run the GA and update the sweepers with their new NNs
 	else {
 
-		// update the stats to be used in our stat window
-		m_vecAvFitness.push_back(m_pGA->AverageFitness());
-		m_vecBestFitness.push_back(m_pGA->BestFitness());
+		// run the GA to create a new population
+		// NN uses STL (it's not ported into the QTL)
+		auto population = vecThePopulation.toStdVector();
+		vecThePopulation = QVector<SGenome>::fromStdVector(m_pGA->Epoch(population));
+
+		// emit current generation stats
+		emit generationStats(m_iGenerations,
+				m_pGA->BestFitness(), m_pGA->AverageFitness());
+
+		// insert the new (hopefully) improved brains back into the sweepers
+		for (int i = 0; i < vecSweepers.size(); ++i) {
+			vecSweepers[i].PutWeights(vecThePopulation[i].vecWeights);
+			vecSweepers[i].Respawn();
+		}
 
 		// increment the generation counter
 		++m_iGenerations;
@@ -239,16 +255,6 @@ void SceneController::updateSimulation() {
 		// reset cycles
 		m_iTicks = 0;
 
-		// run the GA to create a new population
-		// NN uses STL (it's not ported into the QTL)
-		auto population = vecThePopulation.toStdVector();
-		vecThePopulation = QVector<SGenome>::fromStdVector(m_pGA->Epoch(population));
-
-		// insert the new (hopefully) improved brains back into the sweepers
-		for (int i = 0; i < vecSweepers.size(); ++i) {
-			vecSweepers[i].PutWeights(vecThePopulation[i].vecWeights);
-			vecSweepers[i].Respawn();
-		}
 	}
 
 }

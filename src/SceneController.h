@@ -22,7 +22,7 @@
 #include "SVector2D.h"
 
 
-class SceneController : QObject {
+class SceneController : public QObject {
 	Q_OBJECT
 
 public:
@@ -39,6 +39,12 @@ public slots:
 
 	virtual void updateScene();
 	virtual void updateSimulation();
+
+signals:
+
+	// signal emitted upon current generation life-time end, can be used
+	// to collect simulation statistics
+	void generationStats(int generation, double bestFitness, double avgeFitness);
 
 private:
 
@@ -70,12 +76,6 @@ private:
 
 	// indicates NN processing error
 	bool m_bInternalError;
-
-	// stores the average fitness per generation for use in graphing
-	QVector<double> m_vecAvFitness;
-
-	// stores the best fitness per generation
-	QVector<double> m_vecBestFitness;
 
 	// cycles per generation
 	int m_iTicks;

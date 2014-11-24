@@ -12,18 +12,36 @@
 #include <QApplication>
 #include <QDialog>
 #include <QGraphicsScene>
+#include <QKeyEvent>
 #include <QMainWindow>
 #include <QResizeEvent>
 #include <QTimerEvent>
+#include <QVector>
 
 
 namespace Ui {
 	class MainWindow;
 	class PreferencesDialog;
+	class StatisticsDialog;
 }
 
 
+// storage structure for our statistics
+struct StatisticData {
+
+	// laziness...
+	StatisticData(int generation = 0, double bestFitness = 0, double avgeFitness = 0) :
+			generation(generation), bestFitness(bestFitness), avgeFitness(avgeFitness) {  }
+
+	int generation;
+	double bestFitness;
+	double avgeFitness;
+
+};
+
+
 class SceneController;
+class StatisticsDialog;
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
@@ -31,6 +49,9 @@ public:
 
 	explicit MainWindow(QApplication &app, QWidget *parent = 0);
 	~MainWindow();
+
+	QApplication *getApplication() { return app; }
+	const QVector<StatisticData> &getStatistics() { return statistics; }
 
 	// Smart Sweepers Settings
 	static struct SmartSweepersSettings {
@@ -96,12 +117,19 @@ public slots:
 
 	virtual void updateTimers();
 	virtual void updateMines();
+	virtual void updateStats(int generation, double bestFitness, double avgeFitness);
 
+	virtual void showStatistics();
 	virtual void showPreferences();
 
 	virtual void loadSettings();
 	virtual void saveSettings();
 	virtual void resetSettings();
+
+signals:
+
+	// signalize new data in our stats container
+	void statisticsUpdated();
 
 protected:
 
@@ -110,6 +138,7 @@ protected:
 	void startRenderTimer();
 	void stopRenderTimer();
 
+	void closeEvent(QCloseEvent *event);
 	void resizeEvent(QResizeEvent *event);
 	void timerEvent(QTimerEvent *event);
 
@@ -117,6 +146,7 @@ private:
 
 	Ui::MainWindow *ui;
 	QApplication *app;
+	StatisticsDialog *dlgstats;
 
 	bool started;
 	bool paused;
@@ -126,6 +156,9 @@ private:
 
 	// sweepers and mines controller handler
 	SceneController *controller;
+
+	// container for statistics for current simulation
+	QVector<StatisticData> statistics;
 
 };
 
@@ -147,6 +180,28 @@ protected:
 
 private:
 	Ui::PreferencesDialog *ui;
+	MainWindow *mainwindow;
+
+};
+
+
+class StatisticsDialog : public QDialog {
+	Q_OBJECT
+
+public:
+	explicit StatisticsDialog(MainWindow *mainwindow);
+	~StatisticsDialog();
+
+public slots:
+	virtual void appendNewData();
+	virtual void clearData();
+
+protected:
+	void appendData(const StatisticData &data);
+	void keyPressEvent(QKeyEvent *event);
+
+private:
+	Ui::StatisticsDialog *ui;
 	MainWindow *mainwindow;
 
 };
