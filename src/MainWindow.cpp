@@ -152,8 +152,13 @@ void MainWindow::stopSimulationTimer() {
 }
 
 void MainWindow::startRenderTimer() {
-	if (!render_timerid)
-		render_timerid = startTimer(1000 / s.iFramesPerSecond);
+	if (!render_timerid) {
+		if (s.iFramesPerSecond)
+			render_timerid = startTimer(1000 / s.iFramesPerSecond);
+		else
+			// lets hope that -1 is not a real timer ID
+			render_timerid = -1;
+	}
 }
 
 void MainWindow::stopRenderTimer() {
