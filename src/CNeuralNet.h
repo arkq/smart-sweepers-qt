@@ -2,15 +2,15 @@
 // Copyright (c) 2002 Mat Buckland
 //               2014 Arkadiusz Bokowy
 //
-// This file is a part of an smart-sweepers-qt.
+// This file is a part of smart-sweepers-qt.
 //
-// This projected is licensed under the terms of the MIT license.
+// This project is licensed under the terms of the MIT license.
 //
 // Synopsis:
 // Class for creating a feed-forward neural network.
 
-#ifndef CNEURALNET_H
-#define CNEURALNET_H
+#ifndef SMARTSWEEPERSQT_CNEURALNET_H_
+#define SMARTSWEEPERSQT_CNEURALNET_H_
 
 #include <vector>
 

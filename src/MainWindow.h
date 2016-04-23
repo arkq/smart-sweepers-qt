@@ -1,12 +1,12 @@
 // MainWindow.h
 // Copyright (c) 2014 Arkadiusz Bokowy
 //
-// This file is a part of an smart-sweepers-qt.
+// This file is a part of smart-sweepers-qt.
 //
-// This projected is licensed under the terms of the MIT license.
+// This project is licensed under the terms of the MIT license.
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SMARTSWEEPERSQT_MAINWINDOW_H_
+#define SMARTSWEEPERSQT_MAINWINDOW_H_
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -206,4 +206,4 @@ private:
 
 };
 
-#endif  // MAINWINDOW_H
+#endif

@@ -1,9 +1,9 @@
 // main.cpp
 // Copyright (c) 2014 Arkadiusz Bokowy
 //
-// This file is a part of an smart-sweepers-qt.
+// This file is a part of smart-sweepers-qt.
 //
-// This projected is licensed under the terms of the MIT license.
+// This project is licensed under the terms of the MIT license.
 
 #include <QApplication>
 

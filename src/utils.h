@@ -2,12 +2,12 @@
 // Copyright (c) 2002 Mat Buckland
 //               2014 Arkadiusz Bokowy
 //
-// This file is a part of an smart-sweepers-qt.
+// This file is a part of smart-sweepers-qt.
 //
-// This projected is licensed under the terms of the MIT license.
+// This project is licensed under the terms of the MIT license.
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef SMARTSWEEPERSQT_UTILS_H_
+#define SMARTSWEEPERSQT_UTILS_H_
 
 #include <cstdlib>
 
