@@ -1,5 +1,5 @@
-# smart-sweepers.pro - smart-sweepers-qt
-# Copyright (c) 2014 Arkadiusz Bokowy
+# sweepers.pro - smart-sweepers-qt
+# Copyright (c) 2014-2016 Arkadiusz Bokowy
 
 TEMPLATE = app
 
@@ -12,7 +12,7 @@ CONFIG += c++11
 QT += core gui
 QT += widgets
 
-unix {
+unix:!greaterThan(QT_MAJOR_VERSION, 4) {
 	QMAKE_CXXFLAGS += -std=c++11
 }
 
@@ -34,6 +34,6 @@ SOURCES += \
 	src/main.cpp
 
 FORMS += \
-	ui/MainWindow.ui \
-	ui/PreferencesDialog.ui \
-	ui/StatisticsDialog.ui
+	src/MainWindow.ui \
+	src/PreferencesDialog.ui \
+	src/StatisticsDialog.ui

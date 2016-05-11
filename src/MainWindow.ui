@@ -65,6 +65,9 @@
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionAboutQt">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>About Qt</string>
    </property>
