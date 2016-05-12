@@ -23,7 +23,9 @@ motion toward the closest mine.
 Compilation
 -----------
 
-	$ qmake && make
+	$ mkdir build && cd build
+	$ qmake ..
+	$ make && make install
 
 
 Acknowledgment

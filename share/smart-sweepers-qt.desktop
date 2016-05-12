@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Smart Sweepers
+Comment=Simulation framework for a simple AI model
+Exec=smart-sweepers-qt
+Icon=smart-sweepers-qt
+Terminal=false
+Categories=Education;ArtificialIntelligence;Qt;

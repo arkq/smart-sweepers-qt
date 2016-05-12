@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Smart Sweepers</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="smart-sweepers-qt"/>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <property name="margin">
@@ -66,7 +69,9 @@
   </widget>
   <action name="actionAboutQt">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>About Qt</string>

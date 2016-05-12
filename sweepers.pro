@@ -37,3 +37,18 @@ FORMS += \
 	src/MainWindow.ui \
 	src/PreferencesDialog.ui \
 	src/StatisticsDialog.ui
+
+unix {
+
+	isEmpty(PREFIX): PREFIX = /usr/local
+	BINDIR = $$PREFIX/bin
+	DATADIR = $$PREFIX/share
+
+	target.path = $$BINDIR
+	desktop.path = $$DATADIR/applications
+	desktop.files += share/$${TARGET}.desktop
+	icons.path = $$DATADIR/icons/hicolor/scalable
+	icons.files += share/$${TARGET}.svg
+
+	INSTALLS += target desktop icons
+}
