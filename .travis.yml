@@ -1,11 +1,12 @@
-sudo: required
+sudo: true
 dist: trusty
 
 language: cpp
 
-install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y qtbase5-dev
+addons:
+  apt:
+    packages:
+      - qtbase5-dev
 
 before_script:
   - mkdir build && cd build
