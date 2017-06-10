@@ -46,6 +46,10 @@ signals:
 	// to collect simulation statistics
 	void generationStats(int generation, double bestFitness, double avgeFitness);
 
+protected:
+
+	void updateSimulationOpenMP();
+
 private:
 
 	QGraphicsScene *gs;

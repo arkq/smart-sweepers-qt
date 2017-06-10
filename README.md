@@ -24,7 +24,7 @@ Compilation
 -----------
 
 	$ mkdir build && cd build
-	$ qmake ..
+	$ qmake DEFINES+=WITH_OPENMP ..
 	$ make && make install
 
 

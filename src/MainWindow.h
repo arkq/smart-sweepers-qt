@@ -1,5 +1,5 @@
 // MainWindow.h
-// Copyright (c) 2014 Arkadiusz Bokowy
+// Copyright (c) 2014-2017 Arkadiusz Bokowy
 //
 // This file is a part of smart-sweepers-qt.
 //
@@ -58,6 +58,7 @@ public:
 
 		int iCyclesPerSecond;
 		int iFramesPerSecond;
+		bool bMultithreading;
 
 		// --- used for the neural network ---
 

@@ -1,5 +1,5 @@
 // SceneController.cpp
-// Copyright (c) 2014 Arkadiusz Bokowy
+// Copyright (c) 2014-2017 Arkadiusz Bokowy
 //
 // This file is a part of smart-sweepers-qt.
 //
@@ -195,40 +195,50 @@ void SceneController::updateScene() {
 // The comments should explain what is going on adequately.
 void SceneController::updateSimulation() {
 
-	// NN uses STL (it's not ported into the QTL)
-	auto mines = vecMines.toStdVector();
-
 	// Run the sweepers through iNumTicks amount of cycles. During this loop
 	// each sweepers NN is constantly updated with the appropriate information
 	// from its surroundings. The output from the NN is obtained and the sweeper
 	// is moved. If it encounters a mine its fitness is updated appropriately.
 	if (m_iTicks++ < MainWindow::s.iNumTicks) {
-		for (int i = 0; i < vecSweepers.size(); ++i) {
 
-			// update the NN and position
-			if (!vecSweepers[i].Update(mines)) {
-				// error in processing the neural net
-				gsInfo->setText("ERROR: Wrong amount of NN inputs!");
-				m_bInternalError = true;
-				return;
+		if (MainWindow::s.bMultithreading)
+			// For multi-threaded simulation we are using a helper function,
+			// which incorporates OpenMP instructions.
+			updateSimulationOpenMP();
+		else {
+
+			// NN uses STL (it's not ported into the QTL)
+			auto mines = vecMines.toStdVector();
+
+			for (int i = 0; i < vecSweepers.size(); ++i) {
+
+				int grabHit;
+
+				// update the NN and position
+				if (!vecSweepers[i].Update(mines)) {
+					// error in processing the neural net
+					gsInfo->setText("ERROR: Wrong amount of NN inputs!");
+					m_bInternalError = true;
+					return;
+				}
+
+				// keep minesweepers in our viewport
+				vecSweepers[i].WarpWorld(0, 0, vpWidth, vpHeight);
+
+				// see if it's found a mine
+				if ((grabHit = vecSweepers[i].CheckForMine(mines, MainWindow::s.dMineScale)) != -1) {
+					// mine found so replace the mine with another at a random position
+					vecMines[grabHit] = SVector2D(RandFloat() * vpWidth, RandFloat() * vpHeight);
+					// we have discovered a mine so increase fitness
+					vecSweepers[i].IncrementFitness();
+				}
+
+				// update the chromos fitness score
+				vecThePopulation[i].dFitness = vecSweepers[i].Fitness();
 			}
-
-			// keep minesweepers in our viewport
-			vecSweepers[i].WarpWorld(0, 0, vpWidth, vpHeight);
-
-			// see if it's found a mine
-			int GrabHit = vecSweepers[i].CheckForMine(mines, MainWindow::s.dMineScale);
-			if (GrabHit >= 0) {
-				// we have discovered a mine so increase fitness
-				vecSweepers[i].IncrementFitness();
-				// mine found so replace the mine with another at a random position
-				vecMines[GrabHit] = SVector2D(RandFloat() * vpWidth, RandFloat() * vpHeight);
-			}
-
-			// update the chromos fitness score
-			vecThePopulation[i].dFitness = vecSweepers[i].Fitness();
 
 		}
+
 	}
 	// Another generation has been completed.
 	// Time to run the GA and update the sweepers with their new NNs
@@ -255,6 +265,42 @@ void SceneController::updateSimulation() {
 		// reset cycles
 		m_iTicks = 0;
 
+	}
+
+}
+
+void SceneController::updateSimulationOpenMP() {
+
+	// NN uses STL (it's not ported into the QTL)
+	auto mines = vecMines.toStdVector();
+
+	#pragma omp parallel for
+	for (int i = 0; i < vecSweepers.size(); ++i) {
+
+		int grabHit;
+
+		// update the NN and position
+		if (!vecSweepers[i].Update(mines)) {
+			// error in processing the neural net
+			gsInfo->setText("ERROR: Wrong amount of NN inputs!");
+			m_bInternalError = true;
+			continue;
+		}
+
+		// keep minesweepers in our viewport
+		vecSweepers[i].WarpWorld(0, 0, vpWidth, vpHeight);
+
+		#pragma omp critical
+		// see if it's found a mine
+		if ((grabHit = vecSweepers[i].CheckForMine(mines, MainWindow::s.dMineScale)) != -1) {
+			// mine found so replace the mine with another at a random position
+			vecMines[grabHit] = SVector2D(RandFloat() * vpWidth, RandFloat() * vpHeight);
+			// we have discovered a mine so increase fitness
+			vecSweepers[i].IncrementFitness();
+		}
+
+		// update the chromos fitness score
+		vecThePopulation[i].dFitness = vecSweepers[i].Fitness();
 	}
 
 }

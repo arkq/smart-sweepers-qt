@@ -1,5 +1,5 @@
 # sweepers.pro - smart-sweepers-qt
-# Copyright (c) 2014-2016 Arkadiusz Bokowy
+# Copyright (c) 2014-2017 Arkadiusz Bokowy
 
 TEMPLATE = app
 
@@ -14,6 +14,15 @@ QT += widgets
 
 unix:!greaterThan(QT_MAJOR_VERSION, 4) {
 	QMAKE_CXXFLAGS += -std=c++11
+}
+
+contains(DEFINES, WITH_OPENMP) {
+	win32-msvc* {
+		QMAKE_CXXFLAGS += -openmp
+	} else {
+		QMAKE_CXXFLAGS += -fopenmp
+		QMAKE_LFLAGS += -fopenmp
+	}
 }
 
 HEADERS += \

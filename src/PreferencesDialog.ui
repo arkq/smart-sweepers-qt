@@ -32,6 +32,23 @@
          <property name="labelAlignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="cyclesPerSecondLabel">
+           <property name="text">
+            <string>Cycles per Second:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="cyclesPerSecond">
+           <property name="specialValueText">
+            <string>full CPU usage</string>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="framesPerSecondLabel">
            <property name="text">
@@ -49,20 +66,10 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="cyclesPerSecondLabel">
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="multithreading">
            <property name="text">
-            <string>Cycles per Second:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="cyclesPerSecond">
-           <property name="specialValueText">
-            <string>full CPU usage</string>
-           </property>
-           <property name="maximum">
-            <number>1000</number>
+            <string>Multithreading</string>
            </property>
           </widget>
          </item>

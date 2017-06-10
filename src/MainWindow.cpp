@@ -1,5 +1,5 @@
 // MainWindow.cpp
-// Copyright (c) 2014 Arkadiusz Bokowy
+// Copyright (c) 2014-2017 Arkadiusz Bokowy
 //
 // This file is a part of smart-sweepers-qt.
 //
@@ -194,6 +194,7 @@ void MainWindow::loadSettings() {
 
 	s.iCyclesPerSecond = settings.value("iCyclesPerSecond", s.iCyclesPerSecond).toInt();
 	s.iFramesPerSecond = settings.value("iFramesPerSecond", s.iFramesPerSecond).toInt();
+	s.bMultithreading = settings.value("bMultithreading", s.bMultithreading).toBool();
 
 	s.iNumSweepers = settings.value("iNumSweepers", s.iNumSweepers).toInt();
 	s.iNumMines = settings.value("iNumMines", s.iNumMines).toInt();
@@ -228,6 +229,7 @@ void MainWindow::saveSettings() {
 
 	settings.setValue("iCyclesPerSecond", s.iCyclesPerSecond);
 	settings.setValue("iFramesPerSecond", s.iFramesPerSecond);
+	settings.setValue("bMultithreading", s.bMultithreading);
 
 	settings.setValue("iNumSweepers", s.iNumSweepers);
 	settings.setValue("iNumMines", s.iNumMines);
@@ -260,6 +262,7 @@ void MainWindow::resetSettings() {
 
 	s.iCyclesPerSecond = 60;
 	s.iFramesPerSecond = 10;
+	s.bMultithreading = false;
 
 	s.iNumSweepers = 30;
 	s.iNumMines = 40;
@@ -295,6 +298,10 @@ PreferencesDialog::PreferencesDialog(MainWindow *mainwindow) :
 	connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)),
 			this, SLOT(buttonAction(QAbstractButton *)));
 
+#if ! WITH_OPENMP
+	ui->multithreading->hide();
+#endif
+
 	loadSettings();
 
 }
@@ -319,6 +326,7 @@ void PreferencesDialog::applySettings() {
 
 	mainwindow->s.iCyclesPerSecond = ui->cyclesPerSecond->value();
 	mainwindow->s.iFramesPerSecond = ui->framesPerSecond->value();
+	mainwindow->s.bMultithreading = ui->multithreading->isChecked();
 
 	mainwindow->s.iNumSweepers = ui->numSweepers->value();
 	mainwindow->s.iNumMines = ui->numMines->value();
@@ -355,6 +363,7 @@ void PreferencesDialog::loadSettings() {
 
 	ui->cyclesPerSecond->setValue(mainwindow->s.iCyclesPerSecond);
 	ui->framesPerSecond->setValue(mainwindow->s.iFramesPerSecond);
+	ui->multithreading->setChecked(mainwindow->s.bMultithreading);
 
 	ui->numSweepers->setValue(mainwindow->s.iNumSweepers);
 	ui->numMines->setValue(mainwindow->s.iNumMines);
