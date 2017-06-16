@@ -352,29 +352,6 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>buttonBox</tabstop>
-  <tabstop>cyclesPerSecond</tabstop>
-  <tabstop>framesPerSecond</tabstop>
-  <tabstop>numSweepers</tabstop>
-  <tabstop>numMines</tabstop>
-  <tabstop>numTicks</tabstop>
-  <tabstop>maxTurnRate</tabstop>
-  <tabstop>maxSpeed</tabstop>
-  <tabstop>sweeperScale</tabstop>
-  <tabstop>mineScale</tabstop>
-  <tabstop>numInputs</tabstop>
-  <tabstop>numHiddenLayers</tabstop>
-  <tabstop>neuronsPerHiddenLayer</tabstop>
-  <tabstop>numOutputs</tabstop>
-  <tabstop>activationResponse</tabstop>
-  <tabstop>bias</tabstop>
-  <tabstop>crossoverRate</tabstop>
-  <tabstop>mutationRate</tabstop>
-  <tabstop>maxPerturbation</tabstop>
-  <tabstop>numElite</tabstop>
-  <tabstop>numCopiesElite</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -382,32 +359,12 @@
    <signal>accepted()</signal>
    <receiver>PreferencesDialog</receiver>
    <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>257</x>
-     <y>470</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
   </connection>
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>PreferencesDialog</receiver>
    <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>325</x>
-     <y>470</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
   </connection>
  </connections>
 </ui>
