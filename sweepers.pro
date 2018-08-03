@@ -1,10 +1,10 @@
 # sweepers.pro - smart-sweepers-qt
-# Copyright (c) 2014-2017 Arkadiusz Bokowy
+# Copyright (c) 2014-2018 Arkadiusz Bokowy
 
 TEMPLATE = app
 
 TARGET = smart-sweepers-qt
-VERSION = 1.0
+VERSION = 2.2.0
 
 CONFIG += qt
 CONFIG += c++11
